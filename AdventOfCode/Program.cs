@@ -87,7 +87,6 @@ namespace AdventOfCode
             string co2 = "";
             int temp1 = 0;
             string bit = "0";
-            string test = "";
             string[] temp2 = new string[1000];
             bity.CopyTo(temp2, 0);
             
@@ -144,85 +143,127 @@ namespace AdventOfCode
                             temp2[j] = null;
                         }
                     }
-
                 }
-                
-
             }
             foreach (var item in bity)
             {
-                if (item != null)
-                {
-                    Console.WriteLine($"bity: {item}");
-                    Console.WriteLine(Convert.ToInt32(item, 2));
-                }
+                if (item != null) oxygen = item;
             }
             foreach (var item in temp2)
             {
-                if (item != null)
-                {
-                    Console.WriteLine(item);
-                    Console.WriteLine(Convert.ToInt32(item, 2));
-                }
+                if (item != null) co2 = item;
             }
-            /*bity = temp2;
-            for (int i = 0; i < 12; i++)
+            System.Console.WriteLine($"oxygen: {oxygen},\nco2: {co2},\nwynik: {Convert.ToInt32(oxygen,2)*Convert.ToInt32(co2,2)}");
+        }
+        class Bingo{
+            public Value[,] values = new Value[5,5];
+        }
+        class Value{
+            public int number;
+            public bool isChecked = false;
+            public Value(int n){
+                number = n;
+            }
+        }
+        class Pozycja{
+            public int rzad;
+            public int kolumna;
+            public Pozycja(int row, int col){
+                rzad = row;
+                kolumna = col;
+            }
+        }
+        static Pozycja inBingo(Bingo bingo, int wynik){
+            for (int i = 0; i < 5; i++)
             {
-                foreach (var j in bity)
+                for (int j = 0; j < 5; j++)
                 {
-                    if (j != null)
-                    {
-                        if (j[i].ToString() == "0") temp1++;
-
+                    if(bingo.values[i, j].number == wynik){
+                        bingo.values[i, j].isChecked = true;
+                        return new Pozycja(i,j);
                     }
-
-                }
-                if (temp1 > bity.Count(s => s != null) / 2) bit = "1";//jest wiecej 1
-                else bit = "0";
-                Console.WriteLine($"temp1: {temp1}\nbity.Count: {bity.Count(s => s != null)}\nbit: {bit}");
-                test += bit.ToString();
-                if (bit == "0") //odwrocone bo bit jest o tym co usunac
-                {
-                    //oxygen += "0";
-                    co2 += "0";
-                }
-                else
-                {
-                    //oxygen += "1";
-                    co2 += "1";
-                }
-                temp1 = 0;
-                for (int j = 0; j < bity.Length; j++)
-                {
-                    if (bity[j] != null)
-                    {
-                        if (bity[j][i].ToString() != bit)
-                        {
-                            bity[j] = null;
-                        }
-
-                    }
-
                 }
             }
+            return null;
+        }
+        
+        static int finalScore(Bingo bingo, int wynik){
+            int outt = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    if(!bingo.values[i,j].isChecked){
+                        outt += bingo.values[i,j].number;
+                    }
+                }
+            }
+            return outt*wynik;
+        }
+        static void Day4()
+        {
+            string path = @"/Users/kytoon/Projects/AdventOfCode/AdventOfCode/input4.txt";
+            string[] bingo = File.ReadAllLines(path);
+            string[] wyniki = bingo[0].Split(',');
+            Bingo[] tablice = new Bingo[100];
+            List<Dictionary<int,int>> matchesCol = new List<Dictionary<int, int>>();
+            List<Dictionary<int,int>> matchesRow = new List<Dictionary<int, int>>();
+            string[] temp;
+            string linia;
+            int licznik = 0;
+            for (int i = 2; i < 602; i=i+6) //ilosc macierzy
+            {
+                
+                tablice[licznik] = new Bingo();
+                matchesCol.Add(new Dictionary<int,int>());
+                matchesRow.Add(new Dictionary<int,int>());
+                for (int n = 0; n < 5; n++) //rzedy macierzy
+                {
+                    linia = bingo[i+n];
+                    if(linia[0]==' '){
+                        linia = '0' + linia.Substring(1);
+                    }
+                    temp = System.Text.RegularExpressions.Regex.Split( linia, @"\s+");
+                    for (int m = 0; m < 5; m++) //kolumny macierzy
+                    {
+                        tablice[licznik].values[n,m] = new Value(int.Parse(temp[m]));
+                    }
+                
+                }
+                licznik++;
+            }
+            foreach(var wynik in wyniki){
+                for(int i=0; i<100;i++){
+                    Pozycja kordy = inBingo(tablice[i], int.Parse(wynik));
+                    if(kordy != null){
+                        bool isWin = false;
 
-            Console.WriteLine($"oxygen: {oxygen}  dec:{Convert.ToInt32(oxygen, 2)}\nco2: {co2}  dec:{Convert.ToInt32(co2, 2)}\ntest: {test}\n mnożenie: {(Convert.ToInt32(oxygen, 2))*(Convert.ToInt32(co2, 2))}");
-            */
-
+                        if(matchesRow[i].ContainsKey(kordy.rzad)){
+                            if(++matchesRow[i][kordy.rzad] == 5) {isWin = true;}
+                        }
+                        else{
+                            matchesRow[i].Add(kordy.rzad, 1);
+                        }
+                        
+                        if(matchesCol[i].ContainsKey(kordy.kolumna)){
+                            if(++matchesCol[i][kordy.kolumna] == 5) {isWin = true;}  
+                        }
+                        else{
+                            matchesCol[i].Add(kordy.kolumna, 1);
+                        }
+                        if (isWin){
+                            System.Console.WriteLine(finalScore(tablice[i], int.Parse(wynik)));
+                            return;
+                        }
+                    }
+                }
+            }
+        
+            
         }
         static void Main(string[] args)
-        {
-            /*string[] test = {"1","01","10", null };
-            //Console.WriteLine(test.Count(s => s != null));
-            //foreach (var item in test)
-            {
-                if (item != null)
-                {
-
-                    Console.WriteLine(item);
-                }
-            }*/
-            Day3();
+        {  
+            Day4();
         }
     }
 }
