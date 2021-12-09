@@ -174,13 +174,16 @@ namespace AdventOfCode
             }
         }
         static Pozycja inBingo(Bingo bingo, int wynik){
-            for (int i = 0; i < 5; i++)
-            {
-                for (int j = 0; j < 5; j++)
+            if (bingo != null){
+                
+                for (int i = 0; i < 5; i++)
                 {
-                    if(bingo.values[i, j].number == wynik){
-                        bingo.values[i, j].isChecked = true;
-                        return new Pozycja(i,j);
+                    for (int j = 0; j < 5; j++)
+                    {
+                        if(bingo.values[i, j].number == wynik){
+                            bingo.values[i, j].isChecked = true;
+                            return new Pozycja(i,j);
+                        }
                     }
                 }
             }
@@ -254,6 +257,9 @@ namespace AdventOfCode
                         if (isWin){
                             System.Console.WriteLine(finalScore(tablice[i], int.Parse(wynik)));
                             return;
+                            //part 2 -> zmaz return, odkomentuj
+                            //tablice[i] = null;
+                            //isWin = false;
                         }
                     }
                 }
